@@ -1,5 +1,4 @@
 import { app, BrowserWindow } from 'electron'
-
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -51,19 +50,19 @@ app.on('activate', () => {
 const electron = require('electron')
 const ipc = electron.ipcMain
 //登录窗口最小化
-ipc.on('window-min',function(){
-  mainWindow.minimize();
+ipc.on('window-min', function() {
+    mainWindow.minimize()
 })
 //登录窗口最大化
-ipc.on('window-max',function(){
-  if(mainWindow.isMaximized()){
-      mainWindow.restore();  
-  }else{
-      mainWindow.maximize(); 
-  }
+ipc.on('window-max', function() {
+    if (mainWindow.isMaximized()) {
+        mainWindow.restore()
+    } else {
+        mainWindow.maximize()
+    }
 })
-ipc.on('window-close',function(){
-  mainWindow.close();
+ipc.on('window-close', function() {
+    mainWindow.close()
 })
 
 /**

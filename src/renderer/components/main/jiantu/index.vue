@@ -1,6 +1,6 @@
 <template>
     <div id="jiantu" v-loading="loadingStatus" :element-loading-text="loadingText">
-
+        <!-- <canvas id="canvas"></canvas> -->
     </div>
 </template>
 

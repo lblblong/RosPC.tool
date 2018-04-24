@@ -11,5 +11,6 @@ export default {}
 <style lang="scss" scoped="" type="text/css">
 #main {
     flex: 1;
+    overflow: hidden;
 }
 </style>

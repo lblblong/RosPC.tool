@@ -9,7 +9,6 @@ import { Loading, Message, Dialog } from 'element-ui'
 Vue.use(Loading)
 Vue.prototype.$message = Message
 Vue.use(Dialog)
-
 import '../../static/css/normalize'
 import '../../static/surface_styles'
 import '../../static/style'
