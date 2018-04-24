@@ -1,5 +1,6 @@
 <template>
     <div id="jiantu" v-loading="loadingStatus" :element-loading-text="loadingText">
+        
     </div>
 </template>
 
@@ -8,7 +9,6 @@ let ros = require('../../../ros').default
 export default {
     data() {
         return {
-            timer: null,
             loadingStatus: true,
             loadingText: '连接中...'
         }
@@ -26,10 +26,7 @@ export default {
             this.loadingText = '连接异常，重新连接中...'
         })
         ros.addMapLisener(rep => {
-            if (this.timer) clearTimeout(this.timer)
-            this.timer = setTimeout(() => {
-                this.reloadMap(rep)
-            }, 3000)
+            this.reloadMap(rep)
         })
         ros.connect()
         this.initKeyLisener()
@@ -81,7 +78,6 @@ export default {
         drawMap(canvas, width, height, mapData) {
             canvas.width = width
             canvas.height = height
-            // let ctx = canvas.getContext('webgl')
             let ctx = canvas.getContext('2d')
             let x, y, d
             for (let i = 0; i < mapData.length; i++) {
