@@ -1,6 +1,5 @@
 <template>
     <div id="jiantu" v-loading="loadingStatus" :element-loading-text="loadingText">
-        <!-- <canvas id="canvas"></canvas> -->
     </div>
 </template>
 
@@ -65,9 +64,24 @@ export default {
             let width = info.width
             let height = info.height
 
+            let jiantu = document.getElementById('jiantu')
             let canvas = document.createElement('canvas')
+            canvas.id = 'canvas'
+            this.drawMap(canvas, width, height, mapData)
+
+            canvas.style.position = 'absolute'
+            canvas.style.left = jiantu.clientWidth / 2 - width / 2 + 'px'
+            canvas.style.top = jiantu.clientHeight / 2 - height / 2 + 'px'
+
+            canvas.onmousedown = this.dropMap
+            jiantu.removeChild(jiantu.childNodes[0])
+            jiantu.appendChild(canvas)
+            this.loadingStatus = false
+        },
+        drawMap(canvas, width, height, mapData) {
             canvas.width = width
             canvas.height = height
+            // let ctx = canvas.getContext('webgl')
             let ctx = canvas.getContext('2d')
             let x, y, d
             for (let i = 0; i < mapData.length; i++) {
@@ -82,10 +96,21 @@ export default {
                 }
                 ctx.fillRect(x, y, 1, 1)
             }
-            let jiantu = document.getElementById('jiantu')
-            jiantu.removeChild(jiantu.childNodes[0])
-            jiantu.appendChild(canvas)
-            this.loadingStatus = false
+        },
+        dropMap(e) {
+            var canvas = document.getElementById('canvas')
+            var e = e || window.event
+            canvas.startX = e.clientX - canvas.offsetLeft
+            canvas.startY = e.clientY - canvas.offsetTop
+            document.onmousemove = function(e) {
+                var e = e || window.event
+                canvas.style.left = e.clientX - canvas.startX + 'px'
+                canvas.style.top = e.clientY - canvas.startY + 'px'
+            }
+            document.onmouseup = function() {
+                document.onmousemove = null
+                document.onmouseup = null
+            }
         }
     }
 }
@@ -95,8 +120,9 @@ export default {
 #jiantu {
     width: 100%;
     height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    position: relative;
+    // display: flex;
+    // justify-content: center;
+    // align-items: center;
 }
 </style>
