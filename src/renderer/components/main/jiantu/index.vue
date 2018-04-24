@@ -1,6 +1,8 @@
 <template>
-    <div id="jiantu" v-loading="loadingStatus" :element-loading-text="loadingText">
-        
+    <div id="jiantu" v-loading="$store.state.loadingStatus" :element-loading-text="$store.state.loadingText">
+        <div id="container">
+            <div id="ros" v-show="$store.state.havConnection"></div>
+        </div>
     </div>
 </template>
 
@@ -9,21 +11,20 @@ let ros = require('../../../ros').default
 export default {
     data() {
         return {
-            loadingStatus: true,
-            loadingText: '连接中...'
         }
     },
     created() {
+        this.$store.commit('loadingStatus', true)
         ros.addConnectiontLisener(() => {
             this.$message({
                 message: '连接成功',
                 type: 'success'
             })
-            this.loadingText = '加载地图中...'
+            this.$store.commit('loadingText', '加载地图中...')
         })
         ros.addCloseLisener(() => {
-            this.loadingStatus = true
-            this.loadingText = '连接异常，重新连接中...'
+            this.$store.commit('loadingStatus', true)
+            this.$store.commit('loadingText', '连接异常，重新连接中...')
         })
         ros.addMapLisener(rep => {
             this.reloadMap(rep)
@@ -40,16 +41,12 @@ export default {
                     arguments.callee.caller.arguments[0]
 
                 if (e && e.keyCode == 38) {
-                    //上
                     ros.move(1)
                 } else if (e && e.keyCode == 37) {
-                    // 左
                     ros.move(3)
                 } else if (e && e.keyCode == 40) {
-                    // 下
                     ros.move(2)
                 } else if (e && e.keyCode == 39) {
-                    // 右
                     ros.move(4)
                 }
             }
@@ -61,19 +58,20 @@ export default {
             let width = info.width
             let height = info.height
 
+            let container = document.getElementById('container')
             let jiantu = document.getElementById('jiantu')
             let canvas = document.createElement('canvas')
-            canvas.id = 'canvas'
             this.drawMap(canvas, width, height, mapData)
 
-            canvas.style.position = 'absolute'
-            canvas.style.left = jiantu.clientWidth / 2 - width / 2 + 'px'
-            canvas.style.top = jiantu.clientHeight / 2 - height / 2 + 'px'
+            container.style.left = jiantu.clientWidth / 2 - width / 2 + 'px'
+            container.style.top = jiantu.clientHeight / 2 - height / 2 + 'px'
 
-            canvas.onmousedown = this.dropMap
-            jiantu.removeChild(jiantu.childNodes[0])
-            jiantu.appendChild(canvas)
-            this.loadingStatus = false
+            container.onmousedown = this.dropMap
+            if (container.childElementCount > 1) {
+                container.removeChild(container.childNodes[1])
+            }
+            container.appendChild(canvas)
+            this.$store.commit('loadingStatus', false)
         },
         drawMap(canvas, width, height, mapData) {
             canvas.width = width
@@ -94,14 +92,14 @@ export default {
             }
         },
         dropMap(e) {
-            var canvas = document.getElementById('canvas')
+            var container = document.getElementById('container')
             var e = e || window.event
-            canvas.startX = e.clientX - canvas.offsetLeft
-            canvas.startY = e.clientY - canvas.offsetTop
+            container.startX = e.clientX - container.offsetLeft
+            container.startY = e.clientY - container.offsetTop
             document.onmousemove = function(e) {
                 var e = e || window.event
-                canvas.style.left = e.clientX - canvas.startX + 'px'
-                canvas.style.top = e.clientY - canvas.startY + 'px'
+                container.style.left = e.clientX - container.startX + 'px'
+                container.style.top = e.clientY - container.startY + 'px'
             }
             document.onmouseup = function() {
                 document.onmousemove = null
@@ -117,8 +115,16 @@ export default {
     width: 100%;
     height: 100%;
     position: relative;
-    // display: flex;
-    // justify-content: center;
-    // align-items: center;
+    #container {
+        position: absolute;
+        #ros {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: red;
+            border-radius: 50%;
+            z-index: 100;
+        }
+    }
 }
 </style>

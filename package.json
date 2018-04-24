@@ -16,7 +16,7 @@
         "postinstall": ""
     },
     "build": {
-        "productName": "pcjt",
+        "productName": "ZTools 建图",
         "appId": "org.simulatedgreg.electron-vue",
         "directories": {
             "output": "build"
@@ -43,7 +43,7 @@
             "icon": "build/icons/icon.icns"
         },
         "win": {
-            "icon": "build/icons/icon.ico"
+            "icon": "build/icons/icon-new.ico"
         },
         "linux": {
             "icon": "build/icons"

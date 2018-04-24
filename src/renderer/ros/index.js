@@ -1,4 +1,5 @@
 let ROSLIB = require('roslib')
+let store = require('../store').default
 
 class Ros {
     addMapLisener(lisener) {
@@ -26,6 +27,7 @@ class Ros {
     bindEvent() {
         this.ros.on('connection', () => {
             console.log(`已连接到 ROS`)
+            store.commit('havConnection', true)
             this.conLisener()
             let topic = new ROSLIB.Topic({
                 ros: this.ros,
@@ -39,6 +41,7 @@ class Ros {
         this.ros.on('error', err => {})
 
         this.ros.on('close', () => {
+            store.commit('havConnection', false)
             if (this.timer) {
                 clearTimeout(this.timer)
                 this.timer = null
