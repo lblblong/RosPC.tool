@@ -2,8 +2,12 @@
     <div id="tool">
         <div class="action">
             <div @click="$router.push('/')">切换底盘</div>
-            <div @click="navigation">标准</div>
-            <div @click="mapping">建图</div>
+            <el-popover ref="navigation" placement="top" title="提示" width="200" trigger="hover" content="切换时提示状态有问题，请忽略。">
+            </el-popover>
+            <div @click="navigation" v-popover:navigation>标准</div>
+            <el-popover ref="mapping" placement="top" title="提示" width="200" trigger="hover" content="切换时提示状态有问题，请忽略。">
+            </el-popover>
+            <div @click="mapping" v-popover:mapping>建图</div>
             <div @click="help=true">帮助</div>
             <div @click="about=true">关于</div>
         </div>

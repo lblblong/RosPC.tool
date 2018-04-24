@@ -4,11 +4,12 @@ import App from './App'
 import router from './router'
 import store from './store'
 import 'element-ui/lib/theme-chalk/index.css'
-import { Loading, Message, Dialog } from 'element-ui'
+import { Loading, Message, Dialog, Popover } from 'element-ui'
 
 Vue.use(Loading)
 Vue.prototype.$message = Message
 Vue.use(Dialog)
+Vue.use(Popover)
 import '../../static/css/normalize'
 import '../../static/surface_styles'
 import '../../static/style'
