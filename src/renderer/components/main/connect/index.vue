@@ -28,7 +28,7 @@
             <span class="path25"></span>
         </span>
         <input class="etIp" type="text" v-model="ip" required placeholder="底盘 IP">
-        <button @click="connect" class="btnSubmit btn--raised btn--blue">开始建图</button>
+        <button @click="connect" class="btnSubmit btn--raised btn--blue animated infinite jello">开始建图</button>
     </div>
 </template>
 

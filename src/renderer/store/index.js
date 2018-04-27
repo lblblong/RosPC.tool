@@ -7,9 +7,12 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
     state: {
         mapInfo: { width: 0, height: 0 },
+        // 建图页加载状态
         loadingStatus: true,
         loadingText: '连接中...',
-        havConnection: false
+        // 连接状态
+        havConnection: false,
+        batteryRatio: 0
     },
     mutations: {
         mapInfo(state, mapInfo) {
@@ -23,6 +26,9 @@ const store = new Vuex.Store({
         },
         havConnection(state, havConnection) {
             state.havConnection = havConnection
+        },
+        batteryRatio(state, batteryRatio) {
+            state.batteryRatio = batteryRatio
         }
     }
 })

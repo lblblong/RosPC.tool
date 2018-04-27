@@ -1,7 +1,7 @@
 <template>
     <div id="jiantu" v-loading="$store.state.loadingStatus" :element-loading-text="$store.state.loadingText">
         <div id="container">
-            <div id="ros" v-show="$store.state.havConnection"></div>
+            <div id="ros" v-show="$store.state.havConnection" class="animated infinite bounceIn"></div>
         </div>
     </div>
 </template>
@@ -11,9 +11,11 @@ let ros = require('../../../ros').default
 export default {
     data() {
         return {
+            containerCenter: null
         }
     },
     created() {
+        this.$store.commit('loadingText', '连接中...')
         this.$store.commit('loadingStatus', true)
         ros.addConnectiontLisener(() => {
             this.$message({
@@ -23,16 +25,21 @@ export default {
             this.$store.commit('loadingText', '加载地图中...')
         })
         ros.addCloseLisener(() => {
+            this.containerCenter = null
             this.$store.commit('loadingStatus', true)
             this.$store.commit('loadingText', '连接异常，重新连接中...')
         })
         ros.addMapLisener(rep => {
             this.reloadMap(rep)
         })
+        ros.addPoseLisener(rep => {
+            this.reloadPose(rep)
+        })
         ros.connect()
         this.initKeyLisener()
     },
     methods: {
+        // 初始化键盘按键监听
         initKeyLisener() {
             document.onkeydown = function(event) {
                 var e =
@@ -51,6 +58,7 @@ export default {
                 }
             }
         },
+        // 刷新地图
         reloadMap(rep) {
             let info = rep.info
             this.$store.commit('mapInfo', info)
@@ -63,8 +71,17 @@ export default {
             let canvas = document.createElement('canvas')
             this.drawMap(canvas, width, height, mapData)
 
-            container.style.left = jiantu.clientWidth / 2 - width / 2 + 'px'
-            container.style.top = jiantu.clientHeight / 2 - height / 2 + 'px'
+            // 上一次地图中心点不存在则地图显示在中心，否则显示在上一次位置
+            if (!this.containerCenter) {
+                container.style.left = jiantu.clientWidth / 2 - width / 2 + 'px'
+                container.style.top =
+                    jiantu.clientHeight / 2 - height / 2 + 'px'
+            } else {
+                container.style.left =
+                    this.containerCenter.x - container.offsetWidth / 2 + 'px'
+                container.style.top =
+                    this.containerCenter.y - container.offsetHeight / 2 + 'px'
+            }
 
             container.onmousedown = this.dropMap
             if (container.childElementCount > 1) {
@@ -73,6 +90,7 @@ export default {
             container.appendChild(canvas)
             this.$store.commit('loadingStatus', false)
         },
+        // 绘制地图
         drawMap(canvas, width, height, mapData) {
             canvas.width = width
             canvas.height = height
@@ -91,20 +109,41 @@ export default {
                 ctx.fillRect(x, y, 1, 1)
             }
         },
+        // 地图可拖动事件的绑定
         dropMap(e) {
-            var container = document.getElementById('container')
-            var e = e || window.event
+            let _this = this
+            let container = document.getElementById('container')
+            e = e || window.event
             container.startX = e.clientX - container.offsetLeft
             container.startY = e.clientY - container.offsetTop
             document.onmousemove = function(e) {
-                var e = e || window.event
+                e = e || window.event
                 container.style.left = e.clientX - container.startX + 'px'
                 container.style.top = e.clientY - container.startY + 'px'
+                _this.containerCenter = {
+                    x: container.offsetLeft + container.offsetWidth / 2,
+                    y: container.offsetTop + container.offsetHeight / 2
+                }
             }
             document.onmouseup = function() {
                 document.onmousemove = null
                 document.onmouseup = null
             }
+        },
+        // 刷新位置
+        reloadPose(rep) {
+            if (!ros.mapInfo) {
+                return
+            }
+            let x = rep.position.x
+            let y = rep.position.y
+            x = ros.mapInfo.x - x
+            y = ros.mapInfo.y - y
+            let xpx = -x / ros.mapInfo.resolution
+            let ypx = -y / ros.mapInfo.resolution
+            let elRos = document.getElementById('ros')
+            elRos.style.left = xpx - 10 + 'px'
+            elRos.style.top = ypx - 10 + 'px'
         }
     }
 }
@@ -118,7 +157,7 @@ export default {
     #container {
         position: absolute;
         #ros {
-            position: absolute;
+            position: relative;
             width: 20px;
             height: 20px;
             background-color: red;

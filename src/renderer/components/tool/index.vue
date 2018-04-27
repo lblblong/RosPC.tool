@@ -1,13 +1,13 @@
 <template>
     <div id="tool">
         <div class="action">
-            <div @click="$router.push('/')">切换底盘</div>
-            <el-popover ref="navigation" placement="top" title="提示" width="200" trigger="hover" content="切换时提示状态有问题，请忽略。">
+            <div @click="changeRos">切换底盘</div>
+            <el-popover ref="navigation" placement="top" title="提示" width="200" trigger="hover" content="切换模式会导致连接短暂断开，大概30秒">
             </el-popover>
-            <div @click="navigation" v-popover:navigation>标准</div>
-            <el-popover ref="mapping" placement="top" title="提示" width="200" trigger="hover" content="切换时提示状态有问题，请忽略。">
+            <div @click="changeMode('navigation')" v-popover:navigation>标准</div>
+            <el-popover ref="mapping" placement="top" title="提示" width="200" trigger="hover" content="切换模式会导致连接短暂断开，大概30秒">
             </el-popover>
-            <div @click="mapping" v-popover:mapping>建图</div>
+            <div @click="changeMode('mapping')" v-popover:mapping>建图</div>
             <div @click="help=true">帮助</div>
             <div @click="about=true">关于</div>
         </div>
@@ -24,8 +24,30 @@
             <p>公司：智汇机器人</p>
             <p>维护联系人：李北龙</p>
             <p>联系方式：lblblong@foxmail.com</p>
+            <p>手机版ZTools：http://fir.im/ztool</p>
         </el-dialog>
-        <div class="status">地图大小：{{$store.state.mapInfo.width}} x {{$store.state.mapInfo.height}}</div>
+        <div class="status">
+            <div>
+                <span class="icon-battery">
+                    <span class="path1"></span>
+                    <span class="path2"></span>
+                    <span class="path3"></span>
+                    <span class="path4"></span>
+                    <span class="path5"></span>
+                </span>
+                {{$store.state.batteryRatio>0?$store.state.batteryRatio:'--'}} %
+            </div>
+            <div>
+                <span class="icon-map">
+                    <span class="path1"></span>
+                    <span class="path2"></span>
+                    <span class="path3"></span>
+                    <span class="path4"></span>
+                    <span class="path5"></span>
+                </span>
+                {{$store.state.mapInfo.width}} x {{$store.state.mapInfo.height}}
+            </div>
+        </div>
     </div>
 </template>
 
@@ -40,55 +62,45 @@ export default {
         }
     },
     methods: {
-        async navigation() {
-            if (!this.$store.state.havConnection) {
-                this.$message.warning('请先连接底盘')
-                return
-            }
-            this.$store.commit('loadingStatus', true)
-            this.$store.commit('loadingText', '切换模式中...')
-            try {
-                let rep = await axios.get(
-                    `http://${ros.ip}:8080/v1/system/navigation`
-                )
-                console.log(rep)
-                let code = rep.data.code
-                if (code == 404) {
-                    this.$message.error('切换失败，请检查底盘Ros是否启动。')
-                } else if (code == -1) {
-                    throw Error()
-                } else {
-                    this.$message.success('成功切换到标准模式')
-                }
-            } catch (e) {
-                this.$message.error('切换到标准模式失败')
-            }
-            this.$store.commit('loadingStatus', false)
+        changeRos() {
+            this.$router.push('/')
+            ros.close()
         },
-        async mapping() {
+        async changeMode(mode) {
             if (!this.$store.state.havConnection) {
                 this.$message.warning('请先连接底盘')
                 return
             }
-            this.$store.commit('loadingStatus', true)
-            this.$store.commit('loadingText', '切换模式中...')
+            let type = ''
+            if (mode == 'navigation') {
+                type = '标准'
+            } else {
+                type = '建图'
+            }
+            this.$message('切换模式中...')
             try {
                 let rep = await axios.get(
-                    `http://${ros.ip}:8080/v1/system/mapping`
+                    `http://${ros.ip}:8080/v1/system/${mode}`
                 )
+                rep = rep.data
                 console.log(rep)
-                let code = rep.data.code
+                let code = rep.code
                 if (code == 404) {
-                    this.$message.error('切换失败，请检查底盘Ros是否启动。')
+                    this.$message.error('切换失败，请稍后再试。')
                 } else if (code == -1) {
                     throw Error()
+                } else if (code == 0) {
+                    if (rep.data.code == 0) {
+                        this.$message.success(`成功切换到${type}模式`)
+                    } else {
+                        this.$message.warning(`切换失败：${rep.data.message}`)
+                    }
                 } else {
-                    this.$message.success('成功切换到建图模式')
+                    this.$message.error('出现无法处理的异常')
                 }
             } catch (e) {
-                this.$message.error('切换到建图模式失败')
+                this.$message.error(`切换到${type}模式失败`)
             }
-            this.$store.commit('loadingStatus', false)
         }
     }
 }
@@ -120,6 +132,21 @@ export default {
         display: flex;
         line-height: 26px;
         padding: 0 8px;
+        div {
+            padding: 0 8px;
+            display: flex;
+            align-items: center;
+            .icon-map {
+                font-size: 14px;
+                display: flex;
+                margin-right: 8px;
+            }
+            .icon-battery {
+                font-size: 24px;
+                display: flex;
+                margin-right: 4px;
+            }
+        }
     }
 }
 </style>

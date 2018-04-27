@@ -26,11 +26,9 @@ export default {
     methods: {
         minus() {
             ipcRenderer.send('window-min')
-            console.log('最小化')
         },
         cross() {
             ipcRenderer.send('window-close')
-            console.log('关闭')
         }
     }
 }

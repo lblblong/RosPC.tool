@@ -11,6 +11,7 @@ Vue.prototype.$message = Message
 Vue.use(Dialog)
 Vue.use(Popover)
 import '../../static/css/normalize'
+import '../../static/css/animate'
 import '../../static/surface_styles'
 import '../../static/style'
 

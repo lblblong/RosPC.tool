@@ -14,6 +14,10 @@ class Ros {
         this.closeLisener = lisener
     }
 
+    addPoseLisener(lisener) {
+        this.poseLisener = lisener
+    }
+
     init(ip) {
         this.ip = ip
     }
@@ -24,33 +28,86 @@ class Ros {
         this.ros.connect(`ws://${this.ip}:9090`)
     }
 
+    close() {
+        store.commit('havConnection', false)
+        if (this.ros) {
+            this.ros.removeAllListeners()
+            this.ros.close()
+        }
+    }
+
     bindEvent() {
         this.ros.on('connection', () => {
             console.log(`已连接到 ROS`)
             store.commit('havConnection', true)
             this.conLisener()
-            let topic = new ROSLIB.Topic({
-                ros: this.ros,
-                name: '/map'
-            })
-            topic.subscribe(rep => {
-                this.mapLisener(rep)
-            })
+            this.initSubscribe()
         })
 
         this.ros.on('error', err => {})
 
         this.ros.on('close', () => {
-            store.commit('havConnection', false)
-            if (this.timer) {
-                clearTimeout(this.timer)
-                this.timer = null
+            if (this.closeTimer) {
+                clearTimeout(this.closeTimer)
+                this.closeTimer = null
             }
-            this.timer = setTimeout(() => {
+            this.closeTimer = setTimeout(() => {
+                store.commit('havConnection', false)
                 console.log(`与 ROS 的连接已断开，重新连接中...`)
                 this.closeLisener()
                 this.connect()
             }, 3000)
+        })
+    }
+
+    initSubscribe() {
+        // 订阅地图更新
+        let mapTopic = new ROSLIB.Topic({
+            ros: this.ros,
+            name: '/map'
+        })
+        mapTopic.subscribe(rep => {
+            this.mapLisener(rep)
+        })
+
+        // 订阅地图元数据更新
+        let mapInfoTopic = new ROSLIB.Topic({
+            ros: this.ros,
+            name: '/map_metadata'
+        })
+        mapInfoTopic.subscribe(rep => {
+            this.mapInfo = {
+                resolution: rep.resolution,
+                x: rep.origin.position.x,
+                y: rep.origin.position.y
+            }
+        })
+
+        // 订阅机器人位置更新
+        let tfClient = new ROSLIB.TFClient({
+            ros: this.ros,
+            fixedFrame: 'map',
+            angularThres: 0.01,
+            transThres: 0.01
+        })
+        tfClient.subscribe('base_footprint', tf => {
+            let pose = {
+                position: tf.translation,
+                orientation: tf.rotation
+            }
+            this.poseLisener(pose)
+        })
+
+        // 订阅电池电量数据更新
+        let batteryTopic = new ROSLIB.Topic({
+            ros: this.ros,
+            name: '/battery'
+        })
+        batteryTopic.subscribe(rep => {
+            rep = rep.data
+            let batteryRatio = rep[2] / rep[1] * 100
+            batteryRatio = parseInt(batteryRatio)
+            store.commit('batteryRatio', batteryRatio)
         })
     }
 
