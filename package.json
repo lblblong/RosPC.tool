@@ -1,6 +1,6 @@
 {
     "name": "pcjt",
-    "version": "0.0.0",
+    "version": "1.0.0",
     "author": "lblblong <lblblong@qq.com>",
     "description": "An electron-vue project",
     "main": "./dist/electron/main.js",

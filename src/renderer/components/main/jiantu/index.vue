@@ -160,7 +160,7 @@ export default {
             position: relative;
             width: 20px;
             height: 20px;
-            background-color: red;
+            background-color: rgba(255, 0, 0, 0.7);
             border-radius: 50%;
             z-index: 100;
         }

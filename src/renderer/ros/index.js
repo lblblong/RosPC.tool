@@ -120,24 +120,20 @@ class Ros {
         let x = 0
         let y = 0
         let z = 0
-        let speed = 0
-        let throttle = 1.0
-        let scale = 1.0
-
-        speed = throttle * scale
+        let speed = 0.3
 
         switch (action) {
             case 1:
-                x = 0.5 * speed
+                x = 0.2 * speed
                 break
             case 2:
-                x = -0.5 * speed
+                x = -0.2 * speed
                 break
             case 3:
-                z = 1 * speed
+                z = 0.5 * speed
                 break
             case 4:
-                z = -1 * speed
+                z = -0.5 * speed
                 break
         }
 
