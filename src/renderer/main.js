@@ -1,3 +1,4 @@
+import './config'
 import Vue from 'vue'
 import axios from 'axios'
 import App from './App'
@@ -10,6 +11,7 @@ import {
     Dialog,
     Popover,
     Input,
+    Slider,
     Dropdown,
     DropdownMenu,
     DropdownItem
@@ -20,6 +22,7 @@ Vue.prototype.$message = Message
 Vue.use(Dialog)
 Vue.use(Popover)
 Vue.use(Input)
+Vue.use(Slider)
 Vue.use(Dropdown)
 Vue.use(DropdownMenu)
 Vue.use(DropdownItem)
