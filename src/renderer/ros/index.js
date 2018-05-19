@@ -120,7 +120,7 @@ class Ros {
         let x = 0
         let y = 0
         let z = 0
-        let speed = 0.3
+        let speed = parseInt(window.localStorage.speed) * 0.1
 
         switch (action) {
             case 1:
