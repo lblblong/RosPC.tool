@@ -26,6 +26,7 @@
 
             <div @click="help=true">帮助</div>
             <div @click="about=true">关于</div>
+            <div @click="setting=true">首选项</div>
         </div>
 
         <!-- 弹窗内容 -->
@@ -53,6 +54,9 @@
             <p>维护联系人：李北龙</p>
             <p>联系方式：lblblong@foxmail.com</p>
             <p>手机版ZTools：http://fir.im/ztool</p>
+        </el-dialog>
+        <el-dialog title="首选项" :visible.sync="setting">
+            <v-setting></v-setting>
         </el-dialog>
 
         <!-- 右边状态栏 -->
@@ -82,16 +86,21 @@
 </template>
 
 <script>
+import setting from '../widget/setting'
 let ros = require('../../ros').default
 let axios = require('axios')
 export default {
+    components: {
+        'v-setting': setting
+    },
     data() {
         return {
             help: false,
             about: false,
             saveMapDialog: false,
             mapDialog: false,
-            maplist: ['sdf', 'qweor', 'asd'],
+            setting: false,
+            maplist: [],
             etMapName: ''
         }
     },
@@ -109,7 +118,6 @@ export default {
                 this.$message.warning('请先连接底盘')
                 return
             }
-            mapname = mapname.slice(0, mapname.length - 4)
             this.$message('切换地图中...')
             try {
                 let rep = await axios.post(`http://${ros.ip}:8080/v1/maps`, {
@@ -123,7 +131,12 @@ export default {
                     throw Error()
                 } else if (code == 0) {
                     if (rep.data.code == 0) {
-                        this.$message.success(`切换地图成功`)
+                        this.$message.success(
+                            `切换地图成功，重置为标准模式以重新加载地图`
+                        )
+                        setTimeout(() => {
+                            this.changeMode('navigation')
+                        }, 1000)
                     } else {
                         this.$message.warning(`切换失败：${rep.data.message}`)
                     }
