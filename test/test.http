@@ -1,0 +1,13 @@
+### post 请求
+POST http://localhost:8080/v1/maps HTTP/1.1
+Content-Type: application/json
+
+{
+    "name":"gg"
+}
+
+### 静态服务器
+GET http://localhost:8080/public/Dockerfile HTTP/1.1
+
+### 切换到建图模式
+GET http://192.168.3.166:8080/v1/system/mapping

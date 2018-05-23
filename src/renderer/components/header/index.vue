@@ -7,7 +7,7 @@
                 <span class="path3"></span>
                 <span class="path4"></span>
             </span>
-            <div class="title">ZTools 建图</div>
+            <div class="title">ZRTools</div>
         </div>
         <div id="action" style="-webkit-app-region: no-drag">
             <div @click="minus">

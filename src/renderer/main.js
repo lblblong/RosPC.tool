@@ -14,7 +14,9 @@ import {
     Slider,
     Dropdown,
     DropdownMenu,
-    DropdownItem
+    DropdownItem,
+    Upload,
+    Button
 } from 'element-ui'
 
 Vue.use(Loading)
@@ -26,6 +28,8 @@ Vue.use(Slider)
 Vue.use(Dropdown)
 Vue.use(DropdownMenu)
 Vue.use(DropdownItem)
+Vue.use(Upload)
+Vue.use(Button)
 import '../../static/css/normalize'
 import '../../static/css/animate'
 import '../../static/surface_styles'

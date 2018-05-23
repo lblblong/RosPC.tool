@@ -21,6 +21,7 @@
                 <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item command="saveMapDialog">保存地图</el-dropdown-item>
                     <el-dropdown-item command="showMapList">地图列表</el-dropdown-item>
+                    <el-dropdown-item command="uploadMap">上传地图</el-dropdown-item>
                 </el-dropdown-menu>
             </el-dropdown>
 
@@ -31,29 +32,20 @@
 
         <!-- 弹窗内容 -->
         <el-dialog title="地图列表" :visible.sync="mapDialog" class="maplist" width="50%">
-            <div style="height:200px;overflow-y: scroll;">
-                <div @click="changeMap(item)" v-for="item of maplist" v-bind:key="item" class="item" v-html="item"></div>
-            </div>
+            <v-maplist v-if="mapDialog"></v-maplist>
         </el-dialog>
         <el-dialog title="保存地图" :visible.sync="saveMapDialog" width="50%">
             <input class="etMapName" type="text" v-model="etMapName" required placeholder="地图名字">
             <button @click="saveMap()" class="btnSubmit btn--raised btn--blue">保存地图</button>
         </el-dialog>
+        <el-dialog title="上传地图" :visible.sync="uploadMapDialog" width="50%">
+            <v-uploadMap v-if="uploadMapDialog"></v-uploadMap>
+        </el-dialog>
         <el-dialog title="使用帮助" :visible.sync="help">
-            <h6>如何控制底盘？</h6>
-            <p>键盘上的上、下、左、右键可以控制底盘前进后退，左转右转</p>
-            <h6>标准 和 建图？</h6>
-            <p>首先需要了解模式，底盘有两种模式，一个是建图，一个是正常模式，在正常模式下，建图功能会关闭，可导航。</p>
-            <p>切换模式会导致连接短暂断开，大概30秒</p>
+            <v-help></v-help>
         </el-dialog>
         <el-dialog title="关于" :visible.sync="about">
-            <h4>ZTools</h4>
-            <p>版本号：v1.1</p>
-            <h4>开发者</h4>
-            <p>公司：智汇机器人</p>
-            <p>维护联系人：李北龙</p>
-            <p>联系方式：lblblong@foxmail.com</p>
-            <p>手机版ZTools：http://fir.im/ztool</p>
+            <v-about></v-about>
         </el-dialog>
         <el-dialog title="首选项" :visible.sync="setting">
             <v-setting></v-setting>
@@ -87,11 +79,19 @@
 
 <script>
 import setting from '../widget/setting'
+import uploadMap from '../widget/uploadMap'
+import maplist from '../widget/maplist'
+import help from '../widget/help'
+import about from '../widget/about'
 let ros = require('../../ros').default
 let axios = require('axios')
 export default {
     components: {
-        'v-setting': setting
+        'v-setting': setting,
+        'v-uploadMap': uploadMap,
+        'v-maplist': maplist,
+        'v-help': help,
+        'v-about': about
     },
     data() {
         return {
@@ -99,6 +99,7 @@ export default {
             about: false,
             saveMapDialog: false,
             mapDialog: false,
+            uploadMapDialog: false,
             setting: false,
             maplist: [],
             etMapName: ''
@@ -106,64 +107,16 @@ export default {
     },
     methods: {
         mapCorrelation(command) {
+            if (!this.$store.state.havConnection) {
+                this.$message.warning('请先连接底盘')
+                return
+            }
             if (command == 'saveMapDialog') {
                 this.saveMapDialog = true
             } else if (command == 'showMapList') {
-                this.showMapList()
-            }
-        },
-        // 切换地图
-        async changeMap(mapname) {
-            if (!this.$store.state.havConnection) {
-                this.$message.warning('请先连接底盘')
-                return
-            }
-            this.$message('切换地图中...')
-            try {
-                let rep = await axios.post(`http://${ros.ip}:8080/v1/maps`, {
-                    name: mapname
-                })
-                rep = rep.data
-                let code = rep.code
-                if (code == 404) {
-                    this.$message.error('切换失败，请稍后再试。')
-                } else if (code == -1) {
-                    throw Error()
-                } else if (code == 0) {
-                    if (rep.data.code == 0) {
-                        this.$message.success(
-                            `切换地图成功，重置为标准模式以重新加载地图`
-                        )
-                        setTimeout(() => {
-                            this.changeMode('navigation')
-                        }, 1000)
-                    } else {
-                        this.$message.warning(`切换失败：${rep.data.message}`)
-                    }
-                } else {
-                    this.$message.error('出现无法处理的异常')
-                }
-            } catch (e) {
-                this.$message.error(`切换地图失败`)
-            }
-        },
-        // 切换地图列表的点击事件
-        async showMapList() {
-            if (!this.$store.state.havConnection) {
-                this.$message.warning('请先连接底盘')
-                return
-            }
-            this.mapDialog = true
-            try {
-                let rep = await axios.get(`http://${ros.ip}:8080/v1/maps`)
-                rep = rep.data
-                if (rep.code == 0) {
-                    this.maplist = rep.data
-                } else {
-                    throw Error()
-                }
-            } catch (e) {
-                this.$message.warning(`获取地图列表失败，请稍后再试`)
+                this.mapDialog = true
+            } else if (command == 'uploadMap') {
+                this.uploadMapDialog = true
             }
         },
         async saveMap() {
@@ -224,7 +177,6 @@ export default {
                     `http://${ros.ip}:8080/v1/system/${mode}`
                 )
                 rep = rep.data
-                console.log(rep)
                 let code = rep.code
                 if (code == 404) {
                     this.$message.error('切换失败，请稍后再试。')
@@ -291,19 +243,6 @@ export default {
                 display: flex;
                 margin-right: 4px;
             }
-        }
-    }
-}
-
-.maplist {
-    .item {
-        height: 40px;
-        display: flex;
-        align-items: center;
-        padding: 0 16px;
-        cursor: pointer;
-        &:hover {
-            background: #efefef;
         }
     }
 }
