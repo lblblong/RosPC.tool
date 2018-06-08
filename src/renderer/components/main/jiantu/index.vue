@@ -73,9 +73,9 @@ export default {
 
             // 上一次地图中心点不存在则地图显示在中心，否则显示在上一次位置
             if (!this.containerCenter) {
-                container.style.left = jiantu.clientWidth / 2 - width / 2 + 'px'
+                container.style.left = jiantu.offsetWidth / 2 - width / 2 + 'px'
                 container.style.top =
-                    jiantu.clientHeight / 2 - height / 2 + 'px'
+                    jiantu.offsetHeight / 2 - height / 2 + 'px'
             } else {
                 container.style.left =
                     this.containerCenter.x - container.offsetWidth / 2 + 'px'
@@ -95,18 +95,24 @@ export default {
             canvas.width = width
             canvas.height = height
             let ctx = canvas.getContext('2d')
-            let x, y, d
-            for (let i = 0; i < mapData.length; i++) {
-                x = parseInt(i % width)
-                y = parseInt(i / width)
-                d = parseInt(mapData[i])
-                ctx.fillStyle = '#7F7F7F'
-                if (d == 100) {
-                    ctx.fillStyle = '#000000'
-                } else if (d == 0) {
-                    ctx.fillStyle = '#FFFFFF'
+            for (let row = 0; row < height; row++) {
+                for (let col = 0; col < width; col++) {
+                    let mapI = col + (height - row - 1) * width
+                    let data = mapData[mapI]
+                    ctx.fillStyle = '#7F7F7F'
+                    if (data === 100) {
+                        ctx.fillStyle = '#000000'
+                    } else if (data === 0) {
+                        ctx.fillStyle = '#FFFFFF'
+                    }
+                    ctx.fillRect(col, row, 1, 1)
                 }
-                ctx.fillRect(x, y, 1, 1)
+            }
+            // 地图变化同时刷新 window.map，编辑地图时会用
+            window.map = {
+                data: ctx.getImageData(0, 0, width, height),
+                width,
+                height
             }
         },
         // 地图可拖动事件的绑定

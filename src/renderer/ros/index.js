@@ -68,6 +68,7 @@ class Ros {
         })
         mapTopic.subscribe(rep => {
             this.mapLisener(rep)
+            console.log(rep)
         })
 
         // 订阅地图元数据更新
@@ -75,6 +76,7 @@ class Ros {
             ros: this.ros,
             name: '/map_metadata'
         })
+        
         mapInfoTopic.subscribe(rep => {
             this.mapInfo = {
                 resolution: rep.resolution,
@@ -83,19 +85,13 @@ class Ros {
             }
         })
 
-        // 订阅机器人位置更新
-        let tfClient = new ROSLIB.TFClient({
+        // 订阅位置数据更新
+        let poseTopic = new ROSLIB.Topic({
             ros: this.ros,
-            fixedFrame: 'map',
-            angularThres: 0.01,
-            transThres: 0.01
+            name: '/robot_pose'
         })
-        tfClient.subscribe('base_footprint', tf => {
-            let pose = {
-                position: tf.translation,
-                orientation: tf.rotation
-            }
-            this.poseLisener(pose)
+        poseTopic.subscribe(rep => {
+            this.poseLisener(rep)
         })
 
         // 订阅电池电量数据更新

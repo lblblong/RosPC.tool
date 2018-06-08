@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <canvas id="canvas" width="500" height="500"></canvas>
+</body>
+<script>
+    let lines = []
+    let canvas = document.getElementById('canvas')
+    let ctx = canvas.getContext('2d')
+    canvas.onmousedown = e => {
+        let n = lines.length
+        lines[n] = new Object()
+        lines[n].sx = e.offsetX
+        lines[n].sy = e.offsetY
+        canvas.onmousemove = e => {
+            lines[n].ex = e.offsetX
+            lines[n].ey = e.offsetY
+
+            render()
+        }
+        canvas.onmouseup = e => {
+            canvas.onmousemove = null
+            canvas.onmouseup = null
+        }
+    }
+
+    function render() {
+        ctx.clearRect(0, 0, 500, 500)
+        lines.forEach(line => {
+            ctx.beginPath()
+            ctx.moveTo(line.sx, line.sy)
+            ctx.lineTo(line.ex, line.ey)
+            ctx.closePath()
+            ctx.stroke()
+        })
+    }
+</script>
+
+</html>

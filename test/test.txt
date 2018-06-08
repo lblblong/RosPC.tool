@@ -1,0 +1,3 @@
+P5
+# CREATOR: Map_generator.cpp
+500 400

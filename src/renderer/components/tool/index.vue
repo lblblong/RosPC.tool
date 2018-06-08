@@ -20,6 +20,7 @@
                 </span>
                 <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item command="saveMapDialog">保存地图</el-dropdown-item>
+                    <el-dropdown-item command="editMap">编辑地图</el-dropdown-item>
                     <el-dropdown-item command="showMapList">地图列表</el-dropdown-item>
                     <el-dropdown-item command="uploadMap">上传地图</el-dropdown-item>
                 </el-dropdown-menu>
@@ -117,6 +118,8 @@ export default {
                 this.mapDialog = true
             } else if (command == 'uploadMap') {
                 this.uploadMapDialog = true
+            } else if (command == 'editMap') {
+                this.$router.push('/editMap')
             }
         },
         async saveMap() {
