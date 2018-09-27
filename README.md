@@ -6,21 +6,10 @@
 - 扫图
 - 编辑地图
 
-#### Build Setup
-
-``` bash
-# install dependencies
-npm install
-
-# serve with hot reload at localhost:9080
-npm run dev
-
-# build electron application for production
-npm run build
 
 
-```
+![](https://github.com/lblblong/RosPC.tool/blob/master/images/image1.png)
 
----
+![](https://github.com/lblblong/RosPC.tool/blob/master/images/image2.png)
 
-This project was generated with [electron-vue](https://github.com/SimulatedGREG/electron-vue)@[7c4e3e9](https://github.com/SimulatedGREG/electron-vue/tree/7c4e3e90a772bd4c27d2dd4790f61f09bae0fcef) using [vue-cli](https://github.com/vuejs/vue-cli). Documentation about the original structure can be found [here](https://simulatedgreg.gitbooks.io/electron-vue/content/index.html).
+![](https://github.com/lblblong/RosPC.tool/blob/master/images/image3.png)
