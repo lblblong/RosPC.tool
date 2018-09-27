@@ -80,7 +80,7 @@ export default {
                 let name = rep.data
 
                 // canvas 转 pgm 字符串
-                let data = `P2\n# Create by ZRTools\n${editHelp.canvas.width} ${
+                let data = `P2\n# Create by RosTools\n${editHelp.canvas.width} ${
                     editHelp.canvas.height
                 }\n255\n`
 
